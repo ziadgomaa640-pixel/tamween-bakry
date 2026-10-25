@@ -1,0 +1,653 @@
+
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#67c8f5">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="تموين البكري">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="manifest" href="./manifest.json">
+<title>تموين البكري - إدارة محمد البكري</title>
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--blue:#67c8f5;--dark:#168ac5;--light:#eaf8ff;--text:#243447;--red:#e53935;--green:#199c65}
+body{font-family:Tahoma,Arial,sans-serif;background:#f2f7fb;color:var(--text);min-height:100vh}
+button,input,select{font:inherit}
+button{cursor:pointer;border:0;transition:.2s}
+button:hover{filter:brightness(.96)}
+.welcome-screen{min-height:100vh;display:flex;justify-content:center;align-items:center;padding:20px;background:linear-gradient(135deg,#dff5ff,#86d5fa,#eaf8ff)}
+.welcome-card{background:white;width:100%;max-width:500px;padding:40px 25px;text-align:center;border-radius:24px;box-shadow:0 12px 40px #1b72952b}
+.logo{width:90px;height:90px;margin:0 auto 20px;display:flex;justify-content:center;align-items:center;background:var(--light);border-radius:50%;font-size:43px}
+.welcome-card h1{color:var(--dark);margin-bottom:12px;font-size:30px}
+.welcome-card p{color:#64748b;line-height:1.9;margin-bottom:24px}
+.primary-btn{background:var(--dark);color:white;padding:13px 24px;border-radius:10px;font-weight:bold;width:100%}
+#app{display:none}
+.topbar{background:var(--blue);color:white;padding:16px 22px;display:flex;align-items:center;justify-content:space-between;gap:15px;box-shadow:0 3px 12px #0000000d}
+.topbar h1{font-size:24px;margin-bottom:6px}
+.topbar p{font-size:14px;color:white}
+.menu-toggle{display:none;background:white;color:var(--dark);padding:10px 13px;border-radius:9px;font-size:21px}
+.layout{display:flex;min-height:calc(100vh - 80px)}
+.sidebar{width:245px;flex-shrink:0;background:white;padding:20px 14px;border-left:1px solid #e1edf4}
+.sidebar h3{color:var(--dark);margin:4px 0 18px;padding-bottom:12px;border-bottom:1px solid #e8eef3}
+.menu-btn{display:block;width:100%;text-align:right;padding:12px;margin-bottom:8px;border-radius:9px;background:#f1f8fc;color:#28455b;font-weight:bold}
+.menu-btn.active{background:var(--blue);color:white}
+.menu-btn.delete-btn{background:#ffebeb;color:var(--red)}
+.menu-btn.close-btn{background:#35465a;color:white;margin-top:22px}
+.main{flex:1;min-width:0;padding:24px}
+.section-title{font-size:22px;margin-bottom:8px}
+.subtitle{color:#718096;margin-bottom:22px;font-size:14px;line-height:1.8}
+.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-bottom:22px}
+.stat-card{background:white;padding:18px;border-radius:13px;border:1px solid #e5edf4}
+.stat-card p{color:#718096;font-size:13px;margin-bottom:10px}
+.stat-card strong{color:var(--dark);font-size:27px}
+.panel{background:white;border-radius:15px;padding:22px;margin-bottom:22px;border:1px solid #e5edf4;box-shadow:0 4px 15px #203c5007}
+.panel h3{margin-bottom:20px;color:#28455b}
+.form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
+.field{display:flex;flex-direction:column;gap:8px;min-width:0}
+.field label{font-weight:bold;font-size:14px}
+.field input,.field select{width:100%;min-width:0;padding:12px;border:1px solid #d8e3eb;border-radius:9px;outline:none;background:#fff;color:var(--text)}
+.field input:focus,.field select:focus{border-color:var(--dark);box-shadow:0 0 0 3px #168ac51a}
+.form-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:22px}
+.action-btn{padding:11px 17px;border-radius:9px;background:var(--dark);color:white;font-weight:bold}
+.green-btn{background:var(--green)}
+.gray-btn{background:#e8eef4;color:#35465a}
+.red-btn{background:var(--red);color:white}
+.table-wrapper{overflow-x:auto;width:100%}
+table{width:100%;border-collapse:collapse;min-width:720px}
+th,td{padding:13px 12px;text-align:right;border-bottom:1px solid #edf1f5;font-size:13px}
+th{background:#eff9ff;color:#246a91;white-space:nowrap}
+tbody tr:hover{background:#f8fcff}
+.name-btn{background:none;color:var(--dark);font-weight:bold;text-align:right}
+.status{display:inline-block;padding:6px 9px;border-radius:20px;font-size:12px;white-space:nowrap}
+.received{background:#dcfce7;color:#166534}
+.not-received{background:#fff0d8;color:#965d0b}
+.empty{text-align:center;padding:28px;color:#718096}
+.footer{text-align:center;padding:18px;color:#8191a1;font-size:12px}
+
+@media(max-width:760px){
+  .topbar{padding:14px}
+  .topbar h1{font-size:20px}
+  .menu-toggle{display:block}
+  .layout{display:block}
+  .sidebar{display:none;width:100%;border-left:none;border-bottom:1px solid #e1edf4}
+  .sidebar.open{display:block}
+  .main{padding:14px}
+  .stats{gap:8px}
+  .stat-card{padding:12px 8px}
+  .stat-card p{font-size:11px;line-height:1.6}
+  .stat-card strong{font-size:22px}
+  .panel{padding:15px}
+  .form-grid{grid-template-columns:1fr;gap:15px}
+  .form-actions button{flex:1 1 42%}
+  .welcome-card h1{font-size:25px}
+}
+</style>
+</head>
+
+<body>
+<section class="welcome-screen" id="welcome">
+  <div class="welcome-card">
+    <div class="logo">🏪</div>
+    <h1>أهلاً وسهلاً</h1>
+    <p>مرحباً بالأستاذ محمد البكري<br>في نظام إدارة تموين البكري<br>نتمنى لك يوماً موفقاً</p>
+    <button class="primary-btn" onclick="openApp()">دخول إلى البرنامج ←</button>
+  </div>
+</section>
+
+<div id="app">
+  <header class="topbar">
+    <div><h1>تموين البكري</h1><p>إدارة محمد البكري</p></div>
+    <button class="menu-toggle" onclick="toggleMenu()" aria-label="فتح القائمة">☰</button>
+  </header>
+
+  <div class="layout">
+    <aside class="sidebar" id="sidebar">
+      <h3>☰ القائمة الرئيسية</h3>
+      <button class="menu-btn active" onclick="focusField('citizen')">👤 المواطن</button>
+      <button class="menu-btn" onclick="focusField('password')">🔐 الرقم السري</button>
+      <button class="menu-btn" onclick="focusField('phone')">📱 رقم التليفون</button>
+      <button class="menu-btn" onclick="focusField('bread')">🍞 صرف العيش</button>
+      <button class="menu-btn" onclick="focusField('family')">👨‍👩‍👧 عدد الأفراد</button>
+      <button class="menu-btn" onclick="focusField('status')">📋 حالة صرف التموين</button>
+      <hr style="border:0;border-top:1px solid #e8eef3;margin:18px 0">
+      <button class="menu-btn" onclick="addCitizen()">➕ إضافة مواطن</button>
+      <button class="menu-btn" onclick="editCitizen()">✏️ تعديل البيانات</button>
+      <button class="menu-btn" onclick="loadCitizen()">🔎 استدعاء مواطن</button>
+      <button class="menu-btn" onclick="recordDate()">📅 تسجيل صرف الشهر</button>
+      <button class="menu-btn" onclick="showRationHistory()">📚 سجل الصرف الشهري</button>
+      <button class="menu-btn delete-btn" onclick="deleteCitizen()">🗑️ حذف مواطن</button>
+      <button class="menu-btn close-btn" onclick="closeApp()">⏻ إغلاق البرنامج</button>
+    </aside>
+
+    <main class="main">
+      <h2 class="section-title">مرحباً، محمد البكري 👋</h2>
+      <p class="subtitle">نظام إدارة المواطنين ومتابعة صرف التموين والعيش. اختار مواطناً من الجدول أو سجّل بيانات مواطن جديد.</p>
+
+      <div class="stats">
+        <div class="stat-card"><p>إجمالي المواطنين</p><strong id="totalCount">0</strong></div>
+        <div class="stat-card"><p>استلموا هذا الشهر</p><strong id="receivedCount">0</strong></div>
+        <div class="stat-card"><p>لم يستلموا هذا الشهر</p><strong id="pendingCount">0</strong></div>
+      </div>
+
+      <section class="panel" id="citizenForm">
+        <h3>📝 بيانات المواطن</h3>
+        <div class="form-grid">
+          <div class="field"><label for="citizen">اسم المواطن</label><input id="citizen" type="text" placeholder="اكتب اسم المواطن"></div>
+          <div class="field"><label for="password">الرقم السري</label><input id="password" type="password" placeholder="اكتب الرقم السري" autocomplete="new-password"></div>
+          <div class="field"><label for="phone">رقم التليفون</label><input id="phone" type="tel" inputmode="tel" placeholder="مثال: 01012345678"></div>
+          <div class="field"><label for="bread">صرف العيش</label><select id="bread"><option value="منتظم">منتظم</option><option value="لم يصرف">لم يصرف</option><option value="متوقف">متوقف</option></select></div>
+          <div class="field"><label for="family">عدد الأفراد</label><input id="family" type="number" min="1" step="1" placeholder="عدد أفراد الأسرة"></div>
+          <div class="field"><label for="status">حالة التموين لهذا الشهر</label><select id="status"><option value="لم يستلم">لم يستلم</option><option value="استلم">استلم</option></select></div>
+        </div>
+
+        <div class="form-actions">
+          <button class="action-btn" onclick="addCitizen()">➕ إضافة مواطن</button>
+          <button class="action-btn green-btn" onclick="editCitizen()">💾 حفظ التعديل</button>
+          <button class="action-btn" onclick="loadCitizen()">🔎 استدعاء مواطن</button>
+          <button class="action-btn" onclick="recordDate()">📅 تسجيل صرف الشهر</button>
+          <button class="action-btn" onclick="showRationHistory()">📚 سجل الصرف</button>
+          <button class="action-btn red-btn" onclick="deleteCitizen()">🗑️ حذف مواطن</button>
+          <button class="action-btn gray-btn" onclick="clearForm()">🧹 تفريغ الخانات</button>
+        </div>
+        <p id="message" role="status" aria-live="polite" style="margin-top:15px;line-height:1.8"></p>
+      </section>
+
+      <section class="panel">
+        <h3>📋 سجل المواطنين</h3>
+        <div class="field" style="margin-bottom:18px">
+          <label for="search">بحث عن مواطن</label>
+          <input id="search" type="search" placeholder="اكتب الاسم أو رقم التليفون..." oninput="renderCitizens()">
+        </div>
+        <div class="table-wrapper">
+          <table>
+            <thead><tr><th>اسم المواطن</th><th>رقم التليفون</th><th>صرف العيش</th><th>عدد الأفراد</th><th>حالة الشهر الحالي</th><th>آخر تاريخ صرف</th></tr></thead>
+            <tbody id="citizenTable"></tbody>
+          </table>
+        </div>
+        <p class="subtitle" style="margin:16px 0 0">اضغط على اسم المواطن لاستدعاء بياناته وتعديلها أو عرض سجل الصرف.</p>
+      </section>
+
+      <section class="panel" id="historyPanel" style="display:none">
+        <h3>📚 سجل الصرف الشهري</h3>
+        <p id="historyCitizen" class="subtitle"></p>
+        <div class="table-wrapper">
+          <table>
+            <thead><tr><th>الشهر</th><th>تاريخ الصرف</th><th>الحالة</th></tr></thead>
+            <tbody id="historyTable"></tbody>
+          </table>
+        </div>
+      </section>
+      <div class="footer">تموين البكري © إدارة محمد البكري</div>
+    </main>
+  </div>
+</div>
+
+<script>
+"use strict";
+
+const STORAGE_KEY = "bakry_ration_citizens_v1";
+let citizens = [];
+let selectedId = null;
+const $ = id => document.getElementById(id);
+
+function loadSavedData() {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    const parsed = saved ? JSON.parse(saved) : [];
+
+    citizens = Array.isArray(parsed) ? parsed.filter(c =>
+      c && typeof c.id === "string" && typeof c.name === "string"
+    ).map(c => {
+      if (!Array.isArray(c.rationHistory)) c.rationHistory = [];
+
+      // ترحيل التاريخ القديم إلى سجل الصرف الشهري.
+      if (c.rationDate) {
+        let parts;
+
+        if (/^\d{4}-\d{2}-\d{2}$/.test(c.rationDate)) {
+          parts = c.rationDate.split("-");
+        } else if (/^\d{2}\/\d{2}\/\d{4}$/.test(c.rationDate)) {
+          const [d,m,y] = c.rationDate.split("/");
+          parts = [y,m,d];
+        }
+
+        if (parts) {
+          const [y,m,d] = parts;
+          const key = `${y}-${m}`;
+
+          if (!c.rationHistory.some(item => item.month === key)) {
+            c.rationHistory.push({month:key,date:`${d}/${m}/${y}`});
+          }
+        }
+      }
+
+      return c;
+    }) : [];
+
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(citizens));
+  } catch (error) {
+    citizens = [];
+    alert("تعذر قراءة البيانات المحفوظة. تأكد من أن تخزين المتصفح متاح.");
+  }
+}
+
+function saveData() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(citizens));
+    return true;
+  } catch (error) {
+    alert("تعذر حفظ البيانات. مساحة التخزين قد تكون ممتلئة أو غير متاحة.");
+    return false;
+  }
+}
+
+function openApp() {
+  $("welcome").style.display = "none";
+  $("app").style.display = "block";
+  loadSavedData();
+  renderCitizens();
+}
+
+function closeApp() {
+  $("app").style.display = "none";
+  $("welcome").style.display = "flex";
+  $("sidebar").classList.remove("open");
+  clearForm(false);
+}
+
+function toggleMenu() {
+  $("sidebar").classList.toggle("open");
+}
+
+function showMessage(message, success=true) {
+  $("message").textContent = message;
+  $("message").style.color = success ? "#168453" : "#d32f2f";
+}
+
+function currentMonthKey() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}`;
+}
+
+function getFormData() {
+  const name = $("citizen").value.trim();
+  const familyText = $("family").value.trim();
+
+  if (!name) {
+    showMessage("من فضلك اكتب اسم المواطن.",false);
+    $("citizen").focus();
+    return null;
+  }
+
+  if (familyText === "" || !Number.isInteger(Number(familyText)) || Number(familyText)<1) {
+    showMessage("اكتب عدد أفراد صحيحاً لا يقل عن 1.",false);
+    $("family").focus();
+    return null;
+  }
+
+  return {
+    name,
+    password:$("password").value,
+    phone:$("phone").value.trim(),
+    bread:$("bread").value,
+    family:Number(familyText),
+    status:$("status").value
+  };
+}
+
+function clearForm(show=true) {
+  selectedId = null;
+  $("citizen").value = "";
+  $("password").value = "";
+  $("phone").value = "";
+  $("bread").value = "منتظم";
+  $("family").value = "";
+  $("status").value = "لم يستلم";
+  $("historyPanel").style.display = "none";
+
+  if (show) showMessage("الخانات جاهزة لإدخال مواطن جديد.");
+}
+
+function addCitizen() {
+  const data = getFormData();
+  if (!data) return;
+
+  if (selectedId !== null) {
+    showMessage("أنت تستعرض مواطناً بالفعل. استخدم حفظ التعديل أو فرّغ الخانات أولاً.",false);
+    return;
+  }
+
+  const citizen = {id:createId(),...data,rationDate:"",rationHistory:[]};
+  citizens.push(citizen);
+
+  if (!saveData()) {
+    citizens.pop();
+    return;
+  }
+
+  renderCitizens();
+  clearForm(false);
+  showMessage("تمت إضافة المواطن وحفظ بياناته بنجاح.");
+}
+
+function editCitizen() {
+  if (selectedId === null) {
+    showMessage("استدعِ المواطن من الجدول أولاً قبل التعديل.",false);
+    return;
+  }
+
+  const data = getFormData();
+  if (!data) return;
+
+  const index = citizens.findIndex(c=>c.id===selectedId);
+
+  if (index===-1) {
+    showMessage("المواطن غير موجود في السجل.",false);
+    return;
+  }
+
+  const previous = JSON.parse(JSON.stringify(citizens[index]));
+  citizens[index] = {...citizens[index],...data};
+
+  if (!saveData()) {
+    citizens[index]=previous;
+    return;
+  }
+
+  renderCitizens();
+  showMessage("تم حفظ تعديلات المواطن بنجاح.");
+}
+
+function loadCitizen(id=null) {
+  let citizen = null;
+
+  if (id !== null) {
+    citizen = citizens.find(c=>c.id===id);
+  } else if (selectedId !== null) {
+    citizen = citizens.find(c=>c.id===selectedId);
+  } else {
+    const name = $("citizen").value.trim().toLocaleLowerCase();
+
+    if (name) {
+      const matches = citizens.filter(c=>c.name.toLocaleLowerCase()===name);
+
+      if (matches.length>1) {
+        showMessage("الاسم مكرر. اختر المواطن المطلوب من الجدول.",false);
+        return;
+      }
+
+      citizen = matches[0] || null;
+    }
+  }
+
+  if (!citizen) {
+    showMessage("المواطن غير موجود. ابحث عنه في الجدول أو اكتب اسمه.",false);
+    return;
+  }
+
+  selectedId = citizen.id;
+  $("citizen").value = citizen.name;
+  $("password").value = citizen.password || "";
+  $("phone").value = citizen.phone || "";
+  $("bread").value = citizen.bread || "منتظم";
+  $("family").value = citizen.family ?? "";
+
+  const currentEntry = (citizen.rationHistory || [])
+    .some(x=>x.month===currentMonthKey());
+
+  $("status").value = currentEntry ? "استلم" : "لم يستلم";
+
+  showMessage("تم استدعاء بيانات المواطن. يمكنك تعديلها أو عرض سجل الصرف.");
+  $("citizenForm").scrollIntoView({behavior:"smooth",block:"start"});
+
+  if (window.innerWidth<=760) {
+    $("sidebar").classList.remove("open");
+  }
+}
+
+function recordDate() {
+  if (selectedId===null) {
+    showMessage("استدعِ المواطن من الجدول الأول.",false);
+    return;
+  }
+
+  const index = citizens.findIndex(c=>c.id===selectedId);
+
+  if (index===-1) {
+    showMessage("المواطن غير موجود.",false);
+    return;
+  }
+
+  const citizen = citizens[index];
+
+  if (!Array.isArray(citizen.rationHistory)) {
+    citizen.rationHistory=[];
+  }
+
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth()+1).padStart(2,"0");
+  const day = String(now.getDate()).padStart(2,"0");
+  const key = `${year}-${month}`;
+  const displayDate = `${day}/${month}/${year}`;
+
+  if (citizen.rationHistory.some(item=>item.month===key)) {
+    showMessage("تم تسجيل صرف هذا الشهر بالفعل. راجع سجل الصرف.",false);
+    showRationHistory();
+    return;
+  }
+
+  const previous = JSON.parse(JSON.stringify(citizen));
+
+  citizen.rationHistory.push({month:key,date:displayDate});
+  citizen.rationDate = displayDate;
+  citizen.status = "استلم";
+
+  if (!saveData()) {
+    citizens[index]=previous;
+    return;
+  }
+
+  $("status").value = "استلم";
+  renderCitizens();
+  showMessage(`تم تسجيل صرف شهر ${month}/${year} بتاريخ ${displayDate}.`);
+}
+
+function deleteCitizen() {
+  if (selectedId===null) {
+    showMessage("استدعِ المواطن من الجدول أولاً قبل الحذف.",false);
+    return;
+  }
+
+  const citizen = citizens.find(c=>c.id===selectedId);
+
+  if (!citizen) {
+    showMessage("المواطن غير موجود في السجل.",false);
+    return;
+  }
+
+  if (!confirm("هل أنت متأكد من حذف المواطن: "+citizen.name+"؟ سيتم حذف سجل صرفه أيضاً.")) {
+    return;
+  }
+
+  const previous = [...citizens];
+  citizens = citizens.filter(c=>c.id!==selectedId);
+
+  if (!saveData()) {
+    citizens=previous;
+    return;
+  }
+
+  clearForm(false);
+  renderCitizens();
+  showMessage("تم حذف المواطن بنجاح.");
+}
+
+function showRationHistory() {
+  if (selectedId===null) {
+    showMessage("استدعِ المواطن الأول لعرض سجل الصرف.",false);
+    return;
+  }
+
+  const citizen = citizens.find(c=>c.id===selectedId);
+
+  if (!citizen) {
+    showMessage("المواطن غير موجود.",false);
+    return;
+  }
+
+  const history = Array.isArray(citizen.rationHistory)
+    ? [...citizen.rationHistory].sort((a,b)=>b.month.localeCompare(a.month))
+    : [];
+
+  $("historyCitizen").textContent = "سجل الصرف الخاص بالمواطن: "+citizen.name;
+
+  const tbody = $("historyTable");
+  tbody.replaceChildren();
+
+  if (!history.length) {
+    const tr=document.createElement("tr");
+    const td=document.createElement("td");
+    td.colSpan=3;
+    td.className="empty";
+    td.textContent="لا يوجد سجل صرف مسجل لهذا المواطن.";
+    tr.appendChild(td);
+    tbody.appendChild(tr);
+  } else {
+    history.forEach(item=>{
+      const tr=document.createElement("tr");
+
+      const monthCell=document.createElement("td");
+      monthCell.textContent=monthLabel(item.month);
+
+      const dateCell=document.createElement("td");
+      dateCell.textContent=item.date || "—";
+
+      const statusCell=document.createElement("td");
+      const badge=document.createElement("span");
+      badge.className="status received";
+      badge.textContent="استلم";
+      statusCell.appendChild(badge);
+
+      tr.append(monthCell,dateCell,statusCell);
+      tbody.appendChild(tr);
+    });
+  }
+
+  $("historyPanel").style.display="block";
+  $("historyPanel").scrollIntoView({behavior:"smooth",block:"start"});
+}
+
+function monthLabel(key) {
+  const [year,month]=key.split("-").map(Number);
+  const names=["يناير","فبراير","مارس","أبريل","مايو","يونيو","يوليو","أغسطس","سبتمبر","أكتوبر","نوفمبر","ديسمبر"];
+  return `${names[month-1] || month} ${year}`;
+}
+
+function focusField(id) {
+  const field=$(id);
+  if(field) field.focus();
+
+  if(window.innerWidth<=760) {
+    $("sidebar").classList.remove("open");
+  }
+}
+
+function createId() {
+  return Date.now().toString(36)+"-"+Math.random().toString(36).slice(2,10);
+}
+
+function renderCitizens() {
+  const tbody=$("citizenTable");
+  const query=$("search").value.trim().toLocaleLowerCase();
+
+  tbody.replaceChildren();
+
+  const filtered=citizens.filter(c=>
+    c.name.toLocaleLowerCase().includes(query) ||
+    (c.phone||"").toLowerCase().includes(query)
+  );
+
+  if(!filtered.length) {
+    const tr=document.createElement("tr");
+    const td=document.createElement("td");
+    td.colSpan=6;
+    td.className="empty";
+    td.textContent=citizens.length
+      ? "لا توجد نتائج مطابقة للبحث."
+      : "لا يوجد مواطنون مسجلون حتى الآن.";
+    tr.appendChild(td);
+    tbody.appendChild(tr);
+  } else {
+    filtered.forEach(c=>{
+      const tr=document.createElement("tr");
+
+      const nameCell=document.createElement("td");
+      const nameButton=document.createElement("button");
+      nameButton.type="button";
+      nameButton.className="name-btn";
+      nameButton.textContent=c.name;
+      nameButton.addEventListener("click",()=>loadCitizen(c.id));
+      nameCell.appendChild(nameButton);
+      tr.appendChild(nameCell);
+
+      addCell(tr,c.phone||"—");
+      addCell(tr,c.bread||"منتظم");
+      addCell(tr,String(c.family??"—"));
+
+      const receivedThisMonth=Array.isArray(c.rationHistory) &&
+        c.rationHistory.some(x=>x.month===currentMonthKey());
+
+      const statusCell=document.createElement("td");
+      const badge=document.createElement("span");
+      badge.className="status "+(receivedThisMonth?"received":"not-received");
+      badge.textContent=receivedThisMonth?"استلم":"لم يستلم";
+      statusCell.appendChild(badge);
+      tr.appendChild(statusCell);
+
+      const last=[...(c.rationHistory||[])]
+        .sort((a,b)=>b.month.localeCompare(a.month))[0];
+
+      addCell(tr,last ? last.date : (c.rationDate||"لم يسجل"));
+      tbody.appendChild(tr);
+    });
+  }
+
+  const key=currentMonthKey();
+
+  $("totalCount").textContent=citizens.length;
+
+  $("receivedCount").textContent=citizens.filter(c=>
+    (c.rationHistory||[]).some(x=>x.month===key)
+  ).length;
+
+  $("pendingCount").textContent=citizens.filter(c=>
+    !(c.rationHistory||[]).some(x=>x.month===key)
+  ).length;
+}
+
+function addCell(row,value) {
+  const td=document.createElement("td");
+  td.textContent=value;
+  row.appendChild(td);
+}
+
+// تحميل البيانات عند فتح الصفحة، ثم عرضها بعد الدخول.
+loadSavedData();
+
+// تسجيل خدمة التطبيق للتثبيت والتشغيل دون إنترنت.
+// تعمل هذه الميزة عند استخدام HTTPS أو localhost.
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("./service-worker.js")
+      .catch(error => {
+        console.error("تعذر تجهيز التطبيق:", error);
+      });
+  });
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,14 @@
+
+{
+  "id": "./",
+  "name": "تموين البكري - إدارة محمد البكري",
+  "short_name": "تموين البكري",
+  "description": "نظام إدارة المواطنين ومتابعة صرف التموين والعيش",
+  "lang": "ar",
+  "dir": "rtl",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f2f7fb",
+  "theme_color": "#67c8f5"
+}
