@@ -1,14 +1,25 @@
-
 {
   "id": "./",
-  "name": "تموين البكري - إدارة محمد البكري",
-  "short_name": "تموين البكري",
-  "description": "نظام إدارة المواطنين ومتابعة صرف التموين والعيش",
+  "name": "Tamween El-Bakry",
+  "short_name": "Tamween",
+  "description": "Citizens management and ration tracking system",
   "lang": "ar",
   "dir": "rtl",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
   "background_color": "#f2f7fb",
-  "theme_color": "#67c8f5"
+  "theme_color": "#67c8f5",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
 }
